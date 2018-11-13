@@ -2,20 +2,28 @@
   apt: name={{ item }} state=latest update_cache=true
   with_items:
     - build-essential
+    - openssl
     - tmux
     - vim
     - htop
     - git-core
     - wget
-    - zlib1g-dev
+    - curl
     - libssl-dev
     - libreadline-dev
+    - zlib1g-dev
+    - autoconf
+    - bison
+    - build-essential
     - libyaml-dev
-    - libxml2-dev
-    - libxslt1-dev
+    - libreadline-dev
+    - libncurses5-dev
     - libffi-dev
-    - curl
-    - libcurl3
-    - libcurl3-gnutls
-    - libcurl4-openssl-dev
-    - nodejs
+    - libgdbm-dev
+    - libpq-dev
+
+- name: Install NodeJs
+  apt: name=nodejs state=latest update_cache=true
+
+- name: Install npm
+  apt: name=npm state=latest update_cache=true
