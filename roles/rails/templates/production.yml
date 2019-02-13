@@ -1,0 +1,4 @@
+wp_template_archive_path: /var/www/wordpress
+wp_www_directory: '/var/www'
+nginx_directory: '/etc/nginx/sites-enabled/'
+fpm_directory: '/etc/php/7.2/fpm/pool.d/'

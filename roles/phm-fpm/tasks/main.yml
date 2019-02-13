@@ -1,0 +1,10 @@
+---
+- name: Install php7.0-fpm and dependencies
+  apt: name={{ item }} state=latest update_cache=true
+  with_items:
+    - php7.2-fpm
+    - php7.2-mysql
+    - php7.2-curl
+
+- name: Ensure php7.2-fpm service is up
+  service: name=php7.2-fpm state=started

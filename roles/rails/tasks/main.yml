@@ -19,6 +19,9 @@
 - name: Copy puma.rb
   template: src=puma.rb dest={{ deploy_dir }}{{ deploy_app_name }}/shared/puma.rb owner={{ deploy_user }} group={{ deploy_user }}
 
+- name: Copy production.yml settings
+  template: src=production.yml dest={{ deploy_dir }}{{ deploy_app_name }}/shared/config/production.yml owner={{ deploy_user }} group={{ deploy_user }}
+
 - name: Restart Nginx
   service: name=nginx state=restarted enabled=yes
 

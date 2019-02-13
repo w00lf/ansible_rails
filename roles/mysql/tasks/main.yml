@@ -17,6 +17,13 @@
     owner=root
     mode=0600
 
+- name: copy .my.cnf file with root password credentials to deploy user home folder
+  template:
+    src=templates/my.cnf
+    dest=/home/{{ deploy_user }}/.my.cnf
+    owner={{ deploy_user }}
+    mode=0600
+
 - name: Update MySQL root password for all root accounts
   mysql_user: name=root
               host={{ item }}
@@ -33,13 +40,13 @@
     - $ansible_hostname
     - localhost
 
-- name: Create MySQL Database
-  mysql_db: name={{ deploy_app_name }}
-            state=present
-            encoding=utf8mb4
+# - name: Create MySQL Database
+#   mysql_db: name={{ deploy_app_name }}
+#             state=present
+#             encoding=utf8mb4
 
-- name: Create MySQL User
-  mysql_user: name={{ deploy_app_name }}
-              priv={{ deploy_app_name }}.*:ALL
-              state=present
-              password="{{ mysql_app_db_password }}"
+# - name: Create MySQL User
+#   mysql_user: name={{ deploy_app_name }}
+#               priv={{ deploy_app_name }}.*:ALL
+#               state=present
+#               password="{{ mysql_app_db_password }}"

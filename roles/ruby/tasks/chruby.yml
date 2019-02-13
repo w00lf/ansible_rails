@@ -12,7 +12,7 @@
   copy: src=chruby.sh dest=/etc/profile.d/chruby.sh owner=root group=root
 
 - name: Install Bundler
-  command: /opt/rubies/ruby-{{ ruby_version }}/bin/gem install bundler
+  command: /opt/rubies/ruby-{{ ruby_version }}/bin/gem install bundler --version={{ bundler_version }}
 
 - name: Add chruby.sh to .bashrc
   lineinfile:

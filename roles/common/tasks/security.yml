@@ -1,3 +1,4 @@
+# Do not install this on wp_supervisor as it will block all outcoming traffic
 ---
 - name: Install ufw
   apt:

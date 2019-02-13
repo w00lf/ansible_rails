@@ -1,0 +1,16 @@
+---
+- name: Copy wordpress_folder
+  copy: src=wordpress_folder.tar.gz dest=/var/www/wordpress_folder.tar.gz owner={{ deploy_user }} group={{ deploy_user }}
+
+- name: unpack WP folder
+  command: tar -xvzf /var/www/wordpress_folder.tar.gz
+  args:
+    chdir: /var/www/
+    creates: /var/www/wordpress
+
+- name: Sets wordpress folder permissions
+  file:
+    recurse: yes
+    path: /var/www/wordpress
+    owner: '{{ deploy_user }}'
+    group: '{{ deploy_user }}'

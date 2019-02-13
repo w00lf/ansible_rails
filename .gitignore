@@ -1,3 +1,5 @@
 /hosts
 /group_vars/all
 /site.retry
+/host_vars
+roles/static/files/wordpress_folder.tar.gz
