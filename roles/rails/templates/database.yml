@@ -4,4 +4,4 @@ production:
   database: {{ deploy_app_name }}
   username: {{ deploy_app_name }}
   password: {{ psql_app_db_password }}
-  host: localhost
+  host: {{ psql_app_db_host }}
