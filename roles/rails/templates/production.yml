@@ -1,3 +1,6 @@
+this:
+  host: {{ inventory_hostname }}
+  ip: {{ ansible_eth0.ipv4.address }}
 wp_template_archive_path: /var/www/wordpress
 wp_www_directory: '/var/www'
 nginx_directory: '/etc/nginx/sites-enabled/'
