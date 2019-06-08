@@ -1,10 +1,48 @@
 ---
-- name: Install php7.0-fpm and dependencies
+- name: Install php7.2-fpm and dependencies
   apt: name={{ item }} state=latest update_cache=true
   with_items:
     - php7.2-fpm
     - php7.2-mysql
     - php7.2-curl
+    - php-mbstring
+    - php-zip
+    - php-gd
+    - php-ldap
+    - php-xml
 
 - name: Ensure php7.2-fpm service is up
   service: name=php7.2-fpm state=started
+
+- name: Install reload fpm cron job
+  cron:
+    name: "Reload fpm"
+    minute: "0"
+    job: "/etc/init.d/php7.2-fpm reload >> /root/cron-exec.log 2>&1"
+
+- name: Determine php modules path
+  shell: php -i | grep extension_dir | awk '{ print $3 }'
+  register: php_modules_path
+
+- name: Echo modules
+  debug:
+    msg: "{{ php_modules_path.stdout_lines }}"
+
+- name: Copy ioncube lib file
+  copy:
+    src: ioncube_loader_lin_7.2.so
+    dest: "{{ item }}/ioncube_loader_lin_7.2.so"
+  with_items: "{{ php_modules_path.stdout_lines }}"
+
+- name: Enable ioncube exetention - fpm
+  shell: "grep {{ item }}/ioncube_loader_lin_7.2.so /etc/php/7.2/fpm/php.ini || echo 'zend_extension = {{ item }}/ioncube_loader_lin_7.2.so' >> /etc/php/7.2/fpm/php.ini"
+  with_items: "{{ php_modules_path.stdout_lines }}"
+
+- name: Enable ioncube exetention - cli
+  shell: "grep {{ item }}/ioncube_loader_lin_7.2.so /etc/php/7.2/cli/php.ini || echo 'zend_extension = {{ item }}/ioncube_loader_lin_7.2.so' >> /etc/php/7.2/cli/php.ini"
+  with_items: "{{ php_modules_path.stdout_lines }}"
+
+- name: Restart php7.2-fpm service
+  service: name=php7.2-fpm state=restarted
+# php -i | grep extension_dir | awk '{ print $3 }'
+# zend_extension = /usr/lib/php/20151012/ioncube_loader_lin_7.0.so

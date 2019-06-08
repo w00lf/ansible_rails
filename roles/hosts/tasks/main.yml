@@ -1,0 +1,4 @@
+---
+- name: Append host ip info to the hosts
+  shell: "grep {{ item }} /etc/hosts || echo '{{ hostvars[item].ansible_ssh_host }}  {{ item }}' >> /etc/hosts"
+  with_items: "{{ ansible_play_batch }}"

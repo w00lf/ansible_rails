@@ -1,14 +1,11 @@
-upstream puma_production { 
+upstream puma_production {
   server unix:{{ deploy_dir  }}{{ deploy_app_name }}/shared/tmp/sockets/puma.sock fail_timeout=0;
 }
 
 server {
   listen 80;
 
-  #auth_basic "Restricted";
-  #auth_basic_user_file /etc/nginx/.htpasswd;
-
-  server_name {{ deploy_server_hostname }};
+  server_name {{ main_host }};
 
   root {{ deploy_dir  }}{{ deploy_app_name }}/current/public;
   try_files $uri/index.html $uri @puma_production;
@@ -16,6 +13,48 @@ server {
   error_page 500 502 503 504 /500.html;
   client_max_body_size 4G;
   keepalive_timeout 10;
+
+  {% for filebrowser_host in ansible_play_batch %}
+    location /filerun/{{ filebrowser_host }} {
+      # {% if deploy_server_hostname == main_host %}
+      #   auth_request /filerun/auth;
+      #   auth_request_set $auth_status $upstream_status;
+      # {% else %}
+      #   allow  127.0.0.1;
+      #   {% for host in ansible_play_batch %}
+      #     allow  {{ hostvars[host].ansible_ssh_host }};
+      #   {% endfor %}
+      #   deny   all;
+      # {% endif %}
+
+      {% if hostvars[filebrowser_host].ansible_ssh_host == ansible_ssh_host %}
+        alias /var/www/filerun;
+        index index.php index.html;
+        try_files $uri $uri/ /index.php?$args =404;
+
+        location ~ \.php$ {
+          fastcgi_split_path_info ^(.+?\.php)(/.*)$;
+          fastcgi_index index.php;
+          fastcgi_param SCRIPT_FILENAME $request_filename;
+          fastcgi_pass unix:/var/run/php7.2-fpm-{{ deploy_server_hostname }}.sock;
+          include fastcgi_params;
+        }
+      {% else %}
+        proxy_set_header Host $host;
+        proxy_pass http://{{ hostvars[filebrowser_host].ansible_ssh_host }};
+      {% endif %}
+    }
+  {% endfor %}
+
+  {% if deploy_server_hostname == main_host %}
+    location = /filerun/auth {
+      internal;
+      proxy_pass_request_body off;
+      proxy_set_header        Content-Length "";
+      proxy_set_header        X-Original-URI $request_uri;
+      proxy_pass              http://puma_production/admin;
+    }
+  {% endif %}
 
   location @puma_production {
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

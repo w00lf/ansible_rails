@@ -7,3 +7,8 @@ nginx_directory: '/etc/nginx/sites-enabled/'
 fpm_directory: '/etc/php/7.2/fpm/pool.d/'
 redis:
   connection_url: {{ redis_connection_url }}
+ui:
+  host: {{ main_host }}
+filerun:
+  username: {{ filerun_username }}
+  password: {{ filerun_password }}

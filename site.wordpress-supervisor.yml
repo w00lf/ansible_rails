@@ -2,7 +2,7 @@
 # Copy ssh public key to machines (ssh-copy-id user@host)
 ---
 - name: Install Rails Server
-  hosts: webservers
+  hosts: wp_supervisor
   # After initial provisioning, use deploy instead of root
   remote_user: root
   # remote_user: ubuntu
@@ -20,13 +20,17 @@
   roles:
     - common
     - deploy-user
-    - nginx
     - static
-    - ANXS.postgresql
+    # Uncomment on first deploy(set up database)
+    # - ANXS.postgresql
     - certbot
     - ruby
     - rails
     - monit
     - mysql
     - phm-fpm
+    - filerun
     - redis
+    - memcached
+    - nginx
+    - hosts

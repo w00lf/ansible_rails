@@ -1,5 +1,6 @@
 /hosts
-/group_vars/all
+/group_vars
 /site.retry
 /host_vars
 roles/static/files/wordpress_folder.tar.gz
+roles/filerun/files/filerun_dump.sql

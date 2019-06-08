@@ -1,0 +1,39 @@
+- name: Check for filebrowser binary
+  stat: path=/usr/local/bin/filebrowser
+  register: filebrowser_installed
+
+- name: Copy filebrowser install script
+  template: src=install.sh dest=/tmp/filebrowser.sh
+  when: filebrowser_installed.stat.exists == false
+
+- name: Install filebrowser
+  shell: 'chmod a+x /tmp/filebrowser.sh && /tmp/filebrowser.sh'
+  when: filebrowser_installed.stat.exists == false
+
+- name: Check for filebrowser service
+  stat: path=/etc/systemd/system/filebrowser.service
+  register: filebrowser_service_installed
+
+- name: Copy filebrowser service
+  template: src=systemctl_filebrowser dest=/etc/systemd/system/filebrowser.service
+  register: filebrowser_service_installed.stat.exists == false
+
+- name: Install filebrowser service
+  systemd: state=started name=filebrowser.service daemon_reload=yes enabled=yes
+
+- name: Confgiure filebrowser
+  shell: 'cd /var/www && /usr/local/bin/filebrowser config init'
+  when: filebrowser_installed.stat.exists == false
+
+- name: stop filebrowser service
+  systemd: state=started name=filebrowser.service state=stopped
+
+# Filebrowser refuses to work without created user
+- name: Create dummy user
+  shell: 'cd /var/www && filebrowser users find admin || /usr/local/bin/filebrowser users add admin admin'
+
+- name: Confgiure filebrowser
+  shell: 'cd /var/www && /usr/local/bin/filebrowser config set --auth.method=noauth && /usr/local/bin/filebrowser config set --baseurl=/filebrowser/{{ deploy_server_hostname }}'
+
+- name: start filebrowser service
+  systemd: state=started name=filebrowser.service state=started

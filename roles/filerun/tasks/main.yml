@@ -1,0 +1,56 @@
+- name: Ensure MySQL databases are present.
+  mysql_db:
+    name: "{{ filerun_database_name }}"
+    collation: utf8_general_ci
+    encoding: utf8
+    state: present
+
+- name: Ensure MySQL users are present.
+  mysql_user:
+    name: "{{ filerun_database_username }}"
+    host: "localhost"
+    password: "{{ filerun_database_password }}"
+    priv: "filerun.*:ALL"
+    state: "present"
+    append_privs: "no"
+    encrypted: "no"
+  register: create_filerun_databases
+
+- name: Copy database dump file
+  copy:
+    src: filerun_dump.sql
+    dest: /tmp
+  # when: create_filerun_databases.changed == True
+
+- name: Restore database
+  mysql_db:
+    name: "{{ filerun_database_name }}"
+    state: import
+    target: /tmp/filerun_dump.sql
+  # when: create_filerun_databases.changed == True
+
+# - name: Create filerun directory
+#   file:
+#     path: /var/www/filerun
+#     state: directory
+#     mode: '0755'
+#     owner: www-data
+#     group: www-data
+# Very slow
+# - name: Set the correct permissions for existing folders
+#   shell: "chgrp -R www-data /var/www && chmod -R g+w /var/www && find /var/www -type d -exec chmod 2775 {} \\; && find /var/www -type f -exec chmod ug+rw {} \\;"
+
+- name: Upload and unpack filerun
+  unarchive:
+    src: filerun.tar.gz
+    dest: /var/www/
+
+- name: Copy fpm configuration
+  template: src=php-fpm.conf dest=/etc/php/7.2/fpm/pool.d/{{ deploy_server_hostname }}.conf owner=www-data group=www-data
+
+- name: Restart php7.2-fpm service
+  service: name=php7.2-fpm state=restarted
+
+# /etc/php/7.2/fpm/pool.d/
+# ShellUtils.execute!("sudo cp #{file.path} #{File.join(Settings.fpm_directory, "#{domain}.conf")}")
+# ShellUtils.execute!("sudo chown www-data:www-data #{File.join(Settings.fpm_directory, "#{domain}.conf")}")

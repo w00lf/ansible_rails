@@ -26,3 +26,6 @@
 
 - name: Copy htpasswd
   template: src=htpasswd dest=/etc/nginx/.htpasswd owner=root group=root
+
+- name: Reload nginx service
+  service: name=nginx state=reloaded

@@ -1,0 +1,15 @@
+[Unit]
+Description=Filebrowser server
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+WorkingDirectory=/var/www
+ExecStart=/usr/local/bin/filebrowser -r /var/www
+Type=simple
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

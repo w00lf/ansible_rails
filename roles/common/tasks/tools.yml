@@ -21,6 +21,8 @@
     - libffi-dev
     - libgdbm-dev
     - libpq-dev
+    - bsdtar
+    - unzip
 
 - name: Install NodeJs
   apt: name=nodejs state=latest update_cache=true
